@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="67811e1d-88e0-4c50-84c6-e17ff2ac700b" >
+		<http:request-connection host="localhost" port="8082" connectionIdleTimeout="99999999"/>
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="6dde7ffa-785d-4c3d-9042-20e16eed2c6e" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<flow name="main" doc:id="7f873ac7-1dcb-4ada-a665-9d989f6e682d" >
+		<http:listener doc:name="GET /order" doc:id="37973629-f649-4b39-b196-73b288fb01e5" config-ref="HTTP_Listener_config" path="/order" allowedMethods="GET"/>
+		<set-payload value="Order01" doc:name="Order01" doc:id="e1d91c47-cc96-4cba-90c3-e960c7c67ac9" />
+		<set-variable value="#[1]" doc:name="quantity" doc:id="90dd5e1b-8b48-4764-9081-9c7d46ae5139" variableName="quantity"/>
+		<logger level="INFO" doc:name="Logger" doc:id="abfb9cc0-0ae2-41dc-b43e-d9343c490cae" />
+		<http:request method="GET" doc:name="Request" doc:id="1672d1cc-2b0d-4db3-8f74-8248182bd08e" path="/child" config-ref="HTTP_Request_configuration">
+		</http:request>
+		<logger level="INFO" doc:name="End of main flow" doc:id="6171f465-26ce-41b2-a18b-089165d4dc50" />
+	</flow>
+	<flow name="child" doc:id="26508499-f427-41be-acb1-8791a3b713a7" >
+		<http:listener doc:name="GET /child" doc:id="9a24cb07-d698-42d9-9cd8-1f95b494164e" config-ref="HTTP_Listener_config1" path="/child" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d8dd2f8c-3011-4430-bbcd-b7c8d525d90e"/>
+	</flow>
+</mule>
