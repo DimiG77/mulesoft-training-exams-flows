@@ -8,9 +8,24 @@
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 		<flow name="mainflow" doc:id="f22a84d7-87e8-411a-84ab-80e59e93dabb">
-		<flow-ref doc:name="Flow Reference" doc:id="ff7dec7a-d38a-488e-8583-46f189bba733" />
+		<http:listener doc:name="Listener" doc:id="9dc3e2e1-2695-4907-bfb6-45a1dbe27c7f" config-ref="Listener-8081" path="/error01"/>
+		<flow-ref doc:name="privateflow01" doc:id="ff7dec7a-d38a-488e-8583-46f189bba733" name="privateflow01"/>
+		<set-payload value="Success - main flow" doc:name="Success - main flow" doc:id="c6b6ec33-c411-4fe6-b823-88245b524291" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="Error Continue" doc:id="ddff9463-95e9-4e4e-9ac3-13d5682dde80" >
+				<set-payload value="Error - main flow" doc:name="Error - main flow" doc:id="15f3ab33-a0ac-4aa9-a087-4e4c64ddaa57" />
+			</on-error-continue>
+		</error-handler>
+	
+</flow>
+	<flow name="privateflow01" doc:id="5b1182a8-6be1-47d3-b5b0-ea390f600a58" >
+		<validation:is-number doc:name="payload" doc:id="34c8f1f9-86c7-4311-a23b-abc06d1e8f71" value="#[payload]" numberType="INTEGER" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="18108d09-d259-455c-bee2-65515f0a1df2" >
+				<set-payload value="Error - private flow" doc:name="Set Payload" doc:id="7a3b9b92-2cb1-4d3f-9eb4-6522b0478ea5" />
+			</on-error-continue>
+		</error-handler>
 	</flow>
-	<flow name="privateflow" doc:id="5b1182a8-6be1-47d3-b5b0-ea390f600a58" />
 	<flow doc:id="aa05d429-597a-44fc-bfb3-78dbcd1fa46a" name="ErrorFlow1">
 		<http:listener doc:name="Listener" doc:id="0c9087cc-4564-471e-ba5a-5808bcc8323f" config-ref="Listener-8081" allowedMethods="POST" path="/test"/>
 		<try doc:name="Try" doc:id="a8cf6b1b-0021-4fcb-b932-7756ea49eec9" >
