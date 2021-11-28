@@ -8,4 +8,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<http:listener-config name="Listener-8081" doc:name="HTTP Listener config" doc:id="d3df4008-b29a-4d12-b813-f9e4f22d2788" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1c5dd6b4-20a5-40fb-bf7b-07c55a432ce7" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config-8082" doc:name="HTTP Listener config" doc:id="288f383f-36e6-4714-97c1-03df2009ba41" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
 	</mule>
