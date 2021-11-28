@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+		<flow name="mainflow" doc:id="f22a84d7-87e8-411a-84ab-80e59e93dabb">
+		<flow-ref doc:name="Flow Reference" doc:id="ff7dec7a-d38a-488e-8583-46f189bba733" />
+	</flow>
+	<flow name="privateflow" doc:id="5b1182a8-6be1-47d3-b5b0-ea390f600a58" />
+	<flow doc:id="aa05d429-597a-44fc-bfb3-78dbcd1fa46a" name="ErrorFlow1">
+		<http:listener doc:name="Listener" doc:id="0c9087cc-4564-471e-ba5a-5808bcc8323f" config-ref="Listener-8081" allowedMethods="POST" path="/test"/>
+		<try doc:name="Try" doc:id="a8cf6b1b-0021-4fcb-b932-7756ea49eec9" >
+			<validation:is-null doc:name="Is null" doc:id="5b08fd7a-e9de-4cfd-9e5e-893b6776e167" value="#[payload]" message="Validation Error"/>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8b2c3cbb-078b-4f34-a471-de97f17871b2" >
+					<set-payload value='#["Error 1"]' doc:name='"Error 1"' doc:id="d5d4b082-4aff-461d-a5b1-8477dde71c9d" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<set-payload value='#["End"]' doc:name='"End"' doc:id="5483a8f6-455a-40d1-933f-3ad5512eb425" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fa220ae9-7763-4973-9722-548861123e2b" >
+				<set-payload value='#["Error 2"]' doc:name='"Error 2"' doc:id="ef77b8b4-3dbe-47f2-a9b9-5eb88f4e8f2e" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+
+	
+
+</mule>
