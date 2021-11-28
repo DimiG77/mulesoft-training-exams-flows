@@ -11,6 +11,9 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e50c9bff-4d77-4935-8c93-e7f627eda041" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="755b6980-ea89-4886-b851-fc5e1e768457" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
 	<flow name="examsExamplesFlow" doc:id="69491727-0537-42c5-b0c1-f5d0e32b9e51" >
 		<set-payload value="#['REGION']" doc:name="'REGION'" doc:id="9bf23ccf-ae87-4c88-b0cb-7cf1b070f034" />
 		<choice doc:name="Choice" doc:id="153b841c-4d5f-46b4-9229-371557df2514" >
@@ -133,15 +136,45 @@ payload * 10]]></ee:set-payload>
 		</batch:job>
 	</flow>
 	<flow name="examsExamplesFlow5" doc:id="71484a1e-c498-4208-8c3e-435526ff8231" >
-		<scheduler doc:name="Scheduler" doc:id="ea3b5d09-bb93-4b7f-981d-6daae60ac410" >
-			<scheduling-strategy >
-				<fixed-frequency frequency="1" timeUnit="SECONDS"/>
-			</scheduling-strategy>
-		</scheduler>
 		<set-payload value="#[[1,2,3,4]]" doc:name="Set Payload" doc:id="4ce8d6e4-bfcc-4b45-9b0f-49f80ec3115c" />
 		<foreach doc:name="For Each" doc:id="7a6c8fec-1a37-400b-a99b-8a3f9c4ad8dc" >
 			<set-payload value='#["order" ++ payload]' doc:name="Set Payload" doc:id="198a6a3e-e1c0-4120-9f6d-1a46d0d1d1b2" />
 		</foreach>
 		<logger level="INFO" doc:name="Logger" doc:id="0a7597aa-6436-49d6-96a0-f6f3404da77c" message="#[payload]"/>
 	</flow>
+	<flow name="color" doc:id="19b7ae31-ff8c-4293-a3f5-5de4d4355185" >
+		<http:listener doc:name="PUT" doc:id="e1425c68-a13b-4f6a-8a97-bf606533566d" config-ref="HTTP_Listener_config2" path="/color" allowedMethods="PUT"/>
+		<set-payload value="#[payload]" doc:name="Default payload Blue" doc:id="a293a9b9-0497-4170-91d1-4561bd4c9ae5" />
+		<choice doc:name="Choice" doc:id="0e88acac-8c0b-46e3-b7fd-b3cba26a1909" >
+			<when expression='#[payload contains "Red"]'>
+				<set-payload value='"Blk"' doc:name='"Blk"' doc:id="839a956b-e322-4a55-b2bf-3fd674950199" />
+			</when>
+			<when expression='#[payload contains "Blk"]'>
+				<set-payload value="Green" doc:name="Green" doc:id="63967406-c021-4866-888c-1eb75d8384aa" />
+			</when>
+			<otherwise >
+				<set-payload value='#["Red"]' doc:name='"Red"' doc:id="a4000cab-b477-4bf6-bd15-dc0df9190acf" />
+				<flow-ref doc:name="Flow Reference" doc:id="84711bd1-6139-4b89-b638-0f0fe85b71e2" name="color"/>
+			</otherwise>
+		</choice>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="ec86e43c-6005-4401-9654-5617f8516cd1" />
+		<logger level="INFO" doc:name="Logger" doc:id="687215cf-286e-4345-a34a-e23f7a89282a" message="#[payload]"/>
+	</flow>
+	<flow name="batchJob" doc:id="2597325b-18de-44aa-adab-c12eabfcb57d" >
+		<http:listener doc:name="Listener" doc:id="d093af65-62b6-4603-8a7a-3f07f84bfc82" config-ref="HTTP_Listener_config2" path="/bj"/>
+		<set-payload value='#[[&#10;	{"name": "ProductA", "amount": 100, "price": "200"},&#10;	{"name": "ProductB", "amount": 40, "price": "400"},&#10;	{"name": "ProductC", "amount": 2, "price": "600"}&#10;]]' doc:name="Set Payload" doc:id="61127081-d06a-46a1-8016-b39716009ed3" />
+		<batch:job jobName="examexamplesBatch_Job" doc:id="c373fe51-2669-4627-b729-49dbe74ea8d3" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Lessthan50" doc:id="05753d77-87be-4b0d-b3b4-08a490f68a48" acceptExpression="#[payload.amount &lt; 50]" acceptPolicy="ALL">
+					<set-payload value='#["amount": payload.amount + 100]' doc:name="Set Payload" doc:id="786fcb8d-c28f-474c-9b7c-bc4834ededcb" />
+					<logger level="INFO" doc:name="Logger" doc:id="7fc4b4c2-432e-4bbd-a4f4-863c3acb387c" message="#[payload]"/>
+				</batch:step>
+				<batch:step name="Greaterthan20" doc:id="585f2016-009d-43cf-83e5-1ace52a458c5" acceptExpression="#[payload.amount &gt; 20]" acceptPolicy="ALL">
+					<set-payload value='#["step2amount": payload.amount]' doc:name="Set Payload" doc:id="a4f7a49a-ea78-4e96-8e63-925e60fb3f71" />
+					<logger level="INFO" doc:name="Logger" doc:id="5f8de5d2-e5fb-4a0f-b6a0-51149b6515e3" message="#[payload]"/>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+
 </mule>
