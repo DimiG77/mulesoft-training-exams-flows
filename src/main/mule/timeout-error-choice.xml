@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="color02" doc:id="2d4dfd2c-16ae-4d24-98a1-235645c6d6bb" >
+		<http:listener doc:name="PUT" doc:id="901d0c77-d7ab-4304-a1fe-2f445cf0cae0" allowedMethods="PUT" config-ref="HTTP_Listener_config-8082" path="/timeout"/>
+		<set-payload value="Blue" doc:name="Blue" doc:id="e5c74186-493f-4263-a9c6-881e611d8d5d" />
+		<choice doc:name="Choice" doc:id="d0eb2ebd-e431-4c87-93cd-2056489b588c" >
+			<when expression='#[payload contains "Red"]'>
+				<set-payload value="Blk" doc:name="Blk" doc:id="e76cbb08-4359-497f-afdd-3000754ffa1e" />
+			</when>
+			<when expression='#[payload contains "Blk"]'>
+				<set-payload value="Green" doc:name="Green" doc:id="365f37d2-9d06-45f5-b99b-14602ed6e108" />
+			</when>
+			<otherwise >
+				<set-payload value="Red" doc:name="Red" doc:id="3e7aaf45-c301-4044-ae73-c427b08f6c3e" />
+				<flow-ref doc:name="Flow Reference" doc:id="58ddb064-c9b8-49de-91ac-69bc3dd7a5ef" name="color02"/>
+			</otherwise>
+		</choice>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="dee2bcef-ff39-4ffa-883c-eae50903d3e3" />
+		<logger level="INFO" doc:name="Logger" doc:id="a669bb37-05ac-4751-815d-8d8197fa3c7b" />
+	</flow>
+</mule>

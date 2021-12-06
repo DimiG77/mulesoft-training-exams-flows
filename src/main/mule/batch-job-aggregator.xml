@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="batch-job-aggregatorFlow" doc:id="81101406-7ac2-4a86-bd86-457995820b61" >
+		<http:listener doc:name="Listener" doc:id="f6be339e-9d10-4f34-83fa-acd3a77342b4" config-ref="HTTP_Listener_config-8082" path="/batch-job"/>
+		<set-payload value="#[['a','b','c','d','e']]" doc:name="['a','b','c','d','e']" doc:id="ef7e4737-c6c7-4eb7-bb9c-385400881b39" />
+		<batch:job jobName="batch-job-aggregatorBatch_Job" doc:id="fc39d279-d237-4219-b741-7e022d5ad8c5" >
+			<batch:process-records >
+				<batch:step name="Batch_Step_With_filter" doc:id="02972c9c-554b-497d-8dd5-191c10ce9a05" acceptExpression="#[not (payload contains 'b')]">
+					<ee:transform doc:name="Transform Message" doc:id="b5797150-f884-47ea-b504-2732d44b7ca4" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+upper(payload)]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator with filter" doc:id="64f9a40c-9e07-4e80-ab5e-4e9d5b050b8c" size="3">
+						<logger level="INFO" doc:name="Logger" doc:id="67893b23-75e3-495d-b781-43c7b1ea72ff" message="#[output application/json --- payload]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>

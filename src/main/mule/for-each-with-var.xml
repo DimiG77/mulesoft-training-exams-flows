@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="for-each-with-varFlow" doc:id="5ae550b4-d46c-4e35-be6d-2ea5f8bae9c0" >
+		<http:listener doc:name="Listener" doc:id="e7c25b95-0d28-4931-85d6-0237dd5adfd0" config-ref="HTTP_Listener_config-8082" path="/for-each"/>
+		<set-payload value="#[[5,10,15,20]]" doc:name="[5,10,15,20]" doc:id="eef31b55-34b3-4168-9024-d4285e0352a2" />
+		<set-variable value="#[1]" doc:name="count == '1'" doc:id="432e550d-75cf-42b2-a67b-3ea1591730dd" variableName="count"/>
+		<foreach doc:name="For Each" doc:id="1ef82d83-f0da-484c-9d42-bde176d22b21" >
+			<set-payload value='#["Req" ++ payload]' doc:name="Req ++ #[payload]" doc:id="e28557e6-feb3-455d-a5f2-dca9f4fdddf6" />
+			<set-variable value="#[vars.count + 1]" doc:name="vars.count + 1" doc:id="93dc249c-ec1b-439c-a7c0-f491b1b5c49d" variableName="count"/>
+		</foreach>
+		<logger level="INFO" doc:name="[payload, vars.count]" doc:id="11c170e1-e15c-4b17-a54e-d84e35ccb690" message="#[[payload, vars.count]]"/>
+	</flow>
+	</mule>
