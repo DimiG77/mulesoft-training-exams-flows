@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5974a630-28cd-44c6-bddd-9e322e4580ab" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="ROOT" database="employee_db" />
+	</db:config>
+	<flow name="databaseFlow" doc:id="21e1666f-ca5d-4904-ba1b-ba55efa8e408" >
+		<http:listener doc:name="Listener" doc:id="6609f1fd-a77f-43a0-a16f-ce29716af687" config-ref="HTTP_Listener_config-8082" path="/employee" allowedMethods="PUT"/>
+		<logger level="INFO" doc:name="Logger" doc:id="016dab6c-db17-48c8-814b-4e2d53f4113f" message="Start Log "/>
+		<ee:transform doc:name="Transform Message" doc:id="b1ea9a99-33bb-443b-a897-2b3036b74277" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map((item, index) -> {
+	empId: item.userId,
+	empFName: item.firstName,
+	empLName: item.lastName,
+	empPhoneNumber: item.phoneNumber replace "-" with (""),
+	empEmail: item.emailAddress,
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="55c05a37-7c27-4e6a-82b4-1a924d17af9f" collection="#[payload]">
+			<db:insert doc:name="Insert" doc:id="6a0ebedb-9667-4bfb-9248-cab40f2b59f1" config-ref="Database_Config" queryTimeoutUnit="NANOSECONDS">
+			<db:sql><![CDATA[INSERT INTO employees(ID, fname, lname, phoneNumber, email, time_stamp) VALUES (:employeeId, :employeeFName, :employeeLName, :employeePhoneNumber, :employeeEmail, :employeetime)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	employeeId: payload.empId,
+	employeeFName: payload.empFName,
+	employeeLName: payload.empLName,
+	employeePhoneNumber: payload.empPhoneNumber,
+	employeeEmail: payload.empEmail,
+	employeetime: now() as Date
+}]]]></db:input-parameters>
+		</db:insert>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="db94fb90-1c38-414c-90c5-b15470cf7253" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Employees: payload
+} ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8845d59a-9f01-4f2a-ae3b-391a3b5efafc" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a1c4ea68-f13f-4e21-905d-d3499769e01b" type="DB:CONNECTIVITY">
+				<set-payload value="Error - DB Connectivity" doc:name="Error - DB Connectivity" doc:id="9154172f-3a5d-422d-ac17-b666641cfe23" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="53a6dce6-4520-45ba-a9a7-aa4a85f6bc67" type="DB:BAD_SQL_SYNTAX, DB:QUERY_EXECUTION">
+				<set-payload value="Error - SQL Syntax Error" doc:name="SQL Syntax Error" doc:id="7ab8c776-3868-48ca-9a2b-d240e8a87e7e" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="35213192-4aa6-4d4d-9ef0-1b16cd30c8fb" type="ANY">
+				<set-payload value="Error - ANY" doc:name="ANY" doc:id="bb3d9949-91ff-4225-8efe-f34a224a03c8" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
